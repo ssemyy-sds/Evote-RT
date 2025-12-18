@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation View - Pemilihan RT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        .presentation-header {
+            background: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .presentation-content {
+            flex: 1;
+            display: flex;
+            padding: 30px;
+            gap: 30px;
+            overflow: auto;
+        }
+        .presentation-stats {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .presentation-chart {
+            flex: 2;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .big-stat {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--primary-light);
+            border-radius: 10px;
+        }
+        .big-stat h2 {
+            font-size: 4em;
+            margin: 0;
+            color: var(--text-dark);
+        }
+        .big-stat p {
+            font-size: 1.5em;
+            margin: 10px 0 0 0;
+            color: var(--text-dark);
+        }
+        .presentation-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .control-btn {
+            padding: 15px 25px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="presentation-header">
+            <h1 style="font-size: 3em; margin: 0;">🗳️ PEMILIHAN RT</h1>
+            <p style="font-size: 1.5em; margin: 10px 0 0 0; color: #7f8c8d;">
+                Hasil Pemungutan Suara Real-time
+            </p>
+        </div>
+
+        <div class="presentation-content">
+            <div class="presentation-stats">
+                <h2>📊 Statistik</h2>
+                <div id="presentation-stats-content"></div>
+            </div>
+
+            <div class="presentation-chart">
+                <h2>🏆 Perolehan Suara</h2>
+                <div id="presentation-chart-content"></div>
+            </div>
+        </div>
+
+        <div class="presentation-controls">
+            <button class="control-btn" onclick="refreshPresentation()">🔄</button>
+            <button class="control-btn" onclick="toggleFullscreen()">⛶</button>
+            <button class="control-btn" onclick="window.close()">✕</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script>
+        async function loadPresentationData() {
+            try {
+                const { data: candidates, error: candError } = await supabase
+                    .from('candidates')
+                    .select('*')
+                    .order('vote_count', { ascending: false });
+
+                if (candError) throw candError;
+
+                const { data: voters, error: voterError } = await supabase
+                    .from('voters')
+                    .select('has_voted');
+
+                if (voterError) throw voterError;
+
+                const { data: votes, error: voteError } = await supabase
+                    .from('votes')
+                    .select('vote_type');
+
+                if (voteError) throw voteError;
+
+                const abstainCount = votes.filter(v => v.vote_type === 'abstain').length;
+
+                displayPresentationData(candidates, voters, abstainCount);
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
+        function displayPresentationData(candidates, voters, abstainCount) {
+            const totalVoters = voters.length;
+            const votedCount = voters.filter(v => v.has_voted).length;
+            const totalVotes = candidates.reduce((sum, c) => sum + (c.vote_count || 0), 0);
+            const participation = totalVoters > 0 ? ((votedCount/totalVoters)*100).toFixed(1) : 0;
+
+            // Stats
+            const statsDiv = document.getElementById('presentation-stats-content');
+            statsDiv.innerHTML = `
+                <div class="big-stat">
+                    <h2>${totalVoters}</h2>
+                    <p>Total Pemilih</p>
+                </div>
+                <div class="big-stat">
+                    <h2>${votedCount}</h2>
+                    <p>Sudah Memilih</p>
+                </div>
+                <div class="big-stat">
+                    <h2>${participation}%</h2>
+                    <p>Partisipasi</p>
+                </div>
+                <div class="big-stat">
+                    <h2>${abstainCount}</h2>
+                    <p>Abstain</p>
+                </div>
+            `;
+
+            // Chart
+            const chartDiv = document.getElementById('presentation-chart-content');
+            let html = '';
+
+            candidates.forEach((candidate, index) => {
+                const percentage = totalVotes > 0 ? ((candidate.vote_count || 0) / totalVotes * 100).toFixed(1) : 0;
+                const isWinner = index === 0 && candidate.vote_count > 0;
+                
+                html += `
+                    <div class="result-bar" style="margin: 30px 0;">
+                        <div class="result-bar-header" style="font-size: 1.5em; margin-bottom: 15px;">
+                            <span>${isWinner ? '👑 ' : ''}${candidate.name}</span>
+                            <span><strong>${candidate.vote_count || 0}</strong> suara (${percentage}%)</span>
+                        </div>
+                        <div class="result-bar-fill" style="height: 60px; font-size: 1.5em; width: ${percentage}%">
+                            ${percentage}%
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (abstainCount > 0) {
+                const abstainPercentage = totalVotes > 0 ? ((abstainCount / (totalVotes + abstainCount)) * 100).toFixed(1) : 0;
+                html += `
+                    <div class="result-bar" style="margin: 30px 0;">
+                        <div class="result-bar-header" style="font-size: 1.5em; margin-bottom: 15px;">
+                            <span>🚫 Abstain</span>
+                            <span><strong>${abstainCount}</strong> suara (${abstainPercentage}%)</span>
+                        </div>
+                        <div class="result-bar-fill" style="height: 60px; font-size: 1.5em; width: ${abstainPercentage}%; background: #95a5a6;">
+                            ${abstainPercentage}%
+                        </div>
+                    </div>
+                `;
+            }
+
+            chartDiv.innerHTML = html;
+        }
+
+        function refreshPresentation() {
+            loadPresentationData();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Auto refresh every 5 seconds
+        setInterval(loadPresentationData, 5000);
+        
+        // Initial load
+        loadPresentationData();
+    </script>
+</body>
+</html>
