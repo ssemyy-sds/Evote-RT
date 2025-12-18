@@ -1,5 +1,5 @@
 // ============================================
-// PEMILIHAN RT - CONFIGURATION v2.0
+// PEMILIHAN RT - CONFIGURATION FINAL
 // ============================================
 
 (function() {
@@ -20,17 +20,34 @@
         }
     };
 
-    // Initialize Supabase Client (ONLY ONCE)
-    if (!window.supabase) {
-        if (typeof window.supabase === 'undefined' && window.supabase?.createClient) {
-            console.error('❌ Supabase library not loaded properly');
-        } else {
-            window.supabase = window.supabase.createClient(
-                window.AppConfig.supabase.url,
-                window.AppConfig.supabase.key
-            );
-            console.log('✅ Supabase initialized');
+    // Check if Supabase library is loaded
+    if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+        console.error('❌ Supabase library not loaded! Make sure to include Supabase script before config.js');
+        return;
+    }
+
+    // Initialize Supabase Client
+    try {
+        const client = window.supabase.createClient(
+            window.AppConfig.supabase.url,
+            window.AppConfig.supabase.key
+        );
+
+        // Verify client is valid
+        if (!client || typeof client.from !== 'function') {
+            console.error('❌ Supabase client initialization failed');
+            return;
         }
+
+        // Set as global variable
+        window.supabase = client;
+        
+        console.log('✅ Supabase client initialized successfully');
+        console.log('📡 Connected to:', window.AppConfig.supabase.url);
+
+    } catch (error) {
+        console.error('❌ Error initializing Supabase:', error);
+        return;
     }
 
     // Backward compatibility variables
@@ -72,8 +89,8 @@ function setAdminAuth(value) {
 // ============================================
 
 async function uploadImage(file) {
-    if (!window.supabase) {
-        throw new Error('Supabase not initialized');
+    if (!window.supabase || typeof window.supabase.storage === 'undefined') {
+        throw new Error('Supabase not initialized properly');
     }
 
     try {
@@ -117,7 +134,9 @@ async function uploadImage(file) {
 }
 
 async function deleteImage(imageUrl) {
-    if (!window.supabase) return;
+    if (!window.supabase || typeof window.supabase.storage === 'undefined') {
+        return;
+    }
 
     try {
         if (!imageUrl || !imageUrl.includes(window.AppConfig.storage.bucket)) {
@@ -192,31 +211,37 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
 }
 
 // ============================================
-// INITIALIZATION CHECK
+// VERIFICATION (Run after DOM loaded)
 // ============================================
 
-// Wait for DOM to be ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.supabase) {
-            console.log('✅ Config loaded successfully');
-            
-            // Test connection
-            window.supabase.from('candidates').select('count', { count: 'exact', head: true })
-                .then(({ error }) => {
-                    if (error) {
-                        console.warn('⚠️ Database connection issue:', error.message);
-                    } else {
-                        console.log('✅ Database connected');
-                    }
-                })
-                .catch(err => {
-                    console.warn('⚠️ Connection test skipped:', err.message);
-                });
-        }
-    });
-} else {
-    if (window.supabase) {
-        console.log('✅ Config loaded successfully');
+function verifySupabaseConnection() {
+    if (!window.supabase || typeof window.supabase.from !== 'function') {
+        console.error('❌ Supabase client not available');
+        return;
     }
+
+    console.log('✅ Config loaded successfully');
+    
+    // Test database connection
+    window.supabase
+        .from('candidates')
+        .select('count', { count: 'exact', head: true })
+        .then(({ error }) => {
+            if (error) {
+                console.warn('⚠️ Database connection issue:', error.message);
+            } else {
+                console.log('✅ Database connected');
+            }
+        })
+        .catch(err => {
+            console.warn('⚠️ Connection test failed:', err.message);
+        });
+}
+
+// Run verification when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', verifySupabaseConnection);
+} else {
+    // DOM already loaded
+    verifySupabaseConnection();
 }
