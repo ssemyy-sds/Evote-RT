@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemilihan RT - Perumahan</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏘️ PEMILIHAN RT</h1>
+            <p>Sistem Pemilihan Ketua RT Digital</p>
+        </div>
+
+        <div class="content-box">
+            <h2>Selamat Datang</h2>
+            <p>Silakan scan QR Code Anda untuk melakukan pemungutan suara</p>
+            
+            <div class="input-section">
+                <label for="token-input">Atau Masukkan Token Manual:</label>
+                <input type="text" id="token-input" placeholder="Masukkan token Anda">
+                <button onclick="verifyToken()" class="btn-primary">Verifikasi Token</button>
+            </div>
+
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="footer">
+            <a href="admin.html" class="link-admin">Admin Panel</a>
+            <a href="result.html" class="link-result">Lihat Hasil</a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Cek jika ada token di URL (dari QR scan)
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (token) {
+            document.getElementById('token-input').value = token;
+            verifyToken();
+        }
+
+        async function verifyToken() {
+            const tokenInput = document.getElementById('token-input').value.trim();
+            const messageDiv = document.getElementById('message');
+            
+            if (!tokenInput) {
+                showMessage('Mohon masukkan token!', 'error');
+                return;
+            }
+
+            showMessage('Memverifikasi token...', 'info');
+
+            try {
+                const { data, error } = await supabase
+                    .from('voters')
+                    .select('*')
+                    .eq('token', tokenInput)
+                    .single();
+
+                if (error || !data) {
+                    showMessage('Token tidak valid!', 'error');
+                    return;
+                }
+
+                if (data.has_voted) {
+                    showMessage('Anda sudah melakukan pemungutan suara!', 'error');
+                    return;
+                }
+
+                // Token valid, redirect ke halaman vote
+                localStorage.setItem('voterToken', tokenInput);
+                window.location.href = 'vote.html';
+
+            } catch (err) {
+                showMessage('Terjadi kesalahan: ' + err.message, 'error');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = msg;
+            messageDiv.className = 'message ' + type;
+        }
+
+        // Enter key support
+        document.getElementById('token-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyToken();
+            }
+        });
+    </script>
+</body>
+</html>

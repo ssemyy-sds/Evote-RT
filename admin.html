@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Pemilihan RT</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ ADMIN PANEL</h1>
+            <p>Manajemen Pemilihan RT</p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section" class="content-box">
+            <h2>Login Admin</h2>
+            <input type="password" id="admin-password" placeholder="Password Admin">
+            <button onclick="loginAdmin()" class="btn-primary">Login</button>
+            <div id="login-message" class="message"></div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-dashboard" class="content-box" style="display:none;">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('candidates')">Calon</button>
+                <button class="tab-btn" onclick="showTab('voters')">Pemilih</button>
+                <button class="tab-btn" onclick="showTab('tokens')">Generate Token</button>
+                <button class="tab-btn" onclick="showTab('results')">Hasil</button>
+            </div>
+
+            <!-- Tab: Candidates -->
+            <div id="tab-candidates" class="tab-content active">
+                <h2>Kelola Calon</h2>
+                <div class="form-group">
+                    <input type="text" id="candidate-name" placeholder="Nama Calon">
+                    <input type="text" id="candidate-photo" placeholder="URL Foto">
+                    <textarea id="candidate-vision" placeholder="Visi & Misi"></textarea>
+                    <button onclick="addCandidate()" class="btn-primary">Tambah Calon</button>
+                </div>
+                <div id="candidates-table"></div>
+            </div>
+
+            <!-- Tab: Voters -->
+            <div id="tab-voters" class="tab-content">
+                <h2>Daftar Pemilih</h2>
+                <div id="voters-table"></div>
+            </div>
+
+            <!-- Tab: Generate Tokens -->
+            <div id="tab-tokens" class="tab-content">
+                <h2>Generate Token Pemilih</h2>
+                <div class="form-group">
+                    <input type="text" id="voter-name" placeholder="Nama Pemilih">
+                    <input type="text" id="voter-address" placeholder="Alamat (No. Rumah)">
+                    <button onclick="generateToken()" class="btn-primary">Generate Token</button>
+                </div>
+                <div class="form-group">
+                    <h3>Generate Bulk (Multiple)</h3>
+                    <textarea id="bulk-voters" placeholder="Format: Nama|Alamat (satu per baris)&#10;Contoh:&#10;Budi Santoso|A-01&#10;Siti Aminah|A-02"></textarea>
+                    <button onclick="generateBulkTokens()" class="btn-primary">Generate Bulk</button>
+                </div>
+                <div id="token-result"></div>
+            </div>
+
+            <!-- Tab: Results -->
+            <div id="tab-results" class="tab-content">
+                <h2>Hasil Pemungutan Suara</h2>
+                <button onclick="loadResults()" class="btn-primary">Refresh Hasil</button>
+                <div id="results-display"></div>
+            </div>
+
+            <div id="admin-message" class="message"></div>
+            <button onclick="logout()" class="btn-secondary">Logout</button>
+        </div>
+
+        <div class="footer">
+            <a href="index.html">← Kembali ke Beranda</a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Pemilihan - Pemilihan RT</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 HASIL PEMILIHAN</h1>
+            <p>Real-time Vote Count</p>
+        </div>
+
+        <div class="content-box">
+            <div class="stats-summary" id="stats-summary"></div>
+            <div id="results-chart" class="results-chart"></div>
+            <button onclick="loadResults()" class="btn-primary">🔄 Refresh</button>
+        </div>
+
+        <div class="footer">
+            <a href="index.html">← Kembali ke Beranda</a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/result.js"></script>
+</body>
+</html>
