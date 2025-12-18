@@ -1,10 +1,26 @@
-// Supabase Configuration
-const SUPABASE_URL = 'https://recyuuurbxzczrmnwkzp.supabase.co'; // ← PASTE URL Anda
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw'; // ← PASTE KEY Anda
+// Supabase Configuration yg lama
+//const SUPABASE_URL = 'https://recyuuurbxzczrmnwkzp.supabase.co'; // ← PASTE URL Anda
+//const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw'; // ← PASTE KEY Anda
 
 // Initialize Supabase Client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+//const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+//----------------------------------------------------
+const CONFIG = {
+      supabaseUrl: 'https://recyuuurbxzczrmnwkzp.supabase.co',
+      supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw',
+};
+
+const state = {
+      supabase: null,
+};
+ (function init() {
+      state.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+});
+
+
+
+//----------------------------------------------------
 // Admin Password (Ganti dengan password yang aman)
 const ADMIN_PASSWORD = 'admin123'; // ← GANTI INI!
 
@@ -36,4 +52,5 @@ function checkAdminAuth() {
 function setAdminAuth(value) {
     sessionStorage.setItem('adminAuth', value);
 }
+
 
