@@ -1,12 +1,18 @@
 // Supabase Configuration
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // Ganti dengan URL Supabase Anda
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Ganti dengan Anon Key Anda
+const SUPABASE_URL = 'https://recyuuurbxzczrmnwkzp.supabase.co'; // ← PASTE URL Anda
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw'; // ← PASTE KEY Anda
 
 // Initialize Supabase Client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Admin Password (Ganti dengan password yang aman)
-const ADMIN_PASSWORD = 'admin123'; // GANTI INI!
+const ADMIN_PASSWORD = 'admin123'; // ← GANTI INI!
+
+// Demo Password
+const DEMO_PASSWORD = 'demo2024'; // ← GANTI INI!
+
+// Storage bucket name
+const STORAGE_BUCKET = 'candidate-photos';
 
 // Helper Functions
 function generateRandomToken() {
@@ -30,3 +36,4 @@ function checkAdminAuth() {
 function setAdminAuth(value) {
     sessionStorage.setItem('adminAuth', value);
 }
+
