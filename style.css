@@ -443,4 +443,139 @@ table tr:hover {
     border-radius: 50%;
     border-top-color: var(--primary-color);
     animation: spin 1s ease-in-out infinite;
+
+}
+/* ===== DEMO MODE STYLES ===== */
+
+.demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.demo-status {
+    display: flex;
+    gap: 10px;
+}
+
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.status-badge.active {
+    background: var(--primary-color);
+    color: var(--text-dark);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.demo-card {
+    background: var(--bg-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.demo-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(146, 222, 38, 0.2);
+}
+
+.demo-card.danger {
+    border-color: var(--error-color);
+    background: #fadbd8;
+}
+
+.demo-card h4 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.demo-card p {
+    color: #7f8c8d;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.demo-card label {
+    display: block;
+    margin: 10px 0 5px 0;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.btn-action {
+    display: inline-block;
+    padding: 12px 20px;
+    margin: 5px;
+    background: var(--primary-color);
+    color: var(--text-dark);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-action:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn-large {
+    font-size: 1.2em;
+    padding: 15px 30px;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+.scenario-steps {
+    background: white;
+    padding: 15px 15px 15px 35px;
+    border-radius: 8px;
+    margin: 15px 0;
+    line-height: 1.8;
+}
+
+.scenario-steps li {
+    margin: 8px 0;
+    color: var(--text-dark);
+}
+
+.demo-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Responsive Demo */
+@media (max-width: 768px) {
+    .demo-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .demo-footer {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+    }
 }
