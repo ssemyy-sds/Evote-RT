@@ -12,6 +12,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     await loadVoterData(token);
     await loadCandidates();
+    
+    // Check if demo timeout mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDemoTimeout = urlParams.get('demo') === 'timeout';
+    
+    if (isDemoTimeout) {
+        // Speed up timer for demo (10 seconds instead of 60)
+        timeRemaining = 10;
+        showNotification('🎭 Demo Mode: Timer dipercepat (10 detik)');
+    }
+    
+    startCountdown();
 });
 
 async function loadVoterData(token) {
@@ -161,4 +173,5 @@ async function submitVote() {
         console.error('Error:', err);
         showMessage('message', 'Gagal menyimpan suara: ' + err.message, 'error');
     }
+
 }
