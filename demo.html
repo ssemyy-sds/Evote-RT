@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Mode - Pemilihan RT</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 DEMO MODE</h1>
+            <p>Mode Presentasi & Testing</p>
+        </div>
+
+        <!-- Login Demo Section -->
+        <div id="demo-login-section" class="content-box">
+            <h2>🔐 Akses Demo Mode</h2>
+            <p style="color: #7f8c8d; margin-bottom: 20px;">
+                Mode ini untuk presentasi dan testing aplikasi
+            </p>
+            <input type="password" id="demo-password" placeholder="Password Demo">
+            <button onclick="loginDemo()" class="btn-primary">Masuk Demo Mode</button>
+            <div id="demo-login-message" class="message"></div>
+        </div>
+
+        <!-- Demo Dashboard -->
+        <div id="demo-dashboard" class="content-box" style="display:none;">
+            <div class="demo-header">
+                <h2>🎮 Demo Control Panel</h2>
+                <div class="demo-status">
+                    <span class="status-badge active">Demo Mode Active</span>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showDemoTab('setup')">Quick Setup</button>
+                <button class="tab-btn" onclick="showDemoTab('simulate')">Simulasi Vote</button>
+                <button class="tab-btn" onclick="showDemoTab('control')">Kontrol</button>
+                <button class="tab-btn" onclick="showDemoTab('presentation')">Presentasi</button>
+            </div>
+
+            <!-- Tab: Quick Setup -->
+            <div id="demo-tab-setup" class="tab-content active">
+                <h3>⚡ Quick Setup Demo Data</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">
+                    Setup otomatis data demo untuk presentasi
+                </p>
+
+                <div class="demo-card">
+                    <h4>📋 Setup Kandidat Demo</h4>
+                    <p>Buat 3 kandidat contoh dengan foto dan visi/misi</p>
+                    <button onclick="setupDemoCandidates()" class="btn-primary">
+                        Generate Kandidat Demo
+                    </button>
+                </div>
+
+                <div class="demo-card">
+                    <h4>👥 Setup Pemilih Demo</h4>
+                    <label>Jumlah Pemilih:</label>
+                    <input type="number" id="demo-voters-count" value="20" min="5" max="100">
+                    <button onclick="setupDemoVoters()" class="btn-primary">
+                        Generate Pemilih Demo
+                    </button>
+                </div>
+
+                <div class="demo-card danger">
+                    <h4>🗑️ Reset Semua Data Demo</h4>
+                    <p style="color: #e74c3c;">
+                        ⚠️ Hapus semua kandidat, pemilih, dan votes
+                    </p>
+                    <button onclick="resetAllDemoData()" class="btn-secondary">
+                        Reset Database
+                    </button>
+                </div>
+
+                <div id="setup-message" class="message"></div>
+            </div>
+
+            <!-- Tab: Simulasi Vote -->
+            <div id="demo-tab-simulate" class="tab-content">
+                <h3>🎲 Simulasi Pemungutan Suara</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">
+                    Simulasi voting otomatis untuk presentasi
+                </p>
+
+                <div class="demo-card">
+                    <h4>Simulasi Vote Acak</h4>
+                    <label>Jumlah Vote:</label>
+                    <input type="number" id="simulate-vote-count" value="10" min="1" max="50">
+                    <button onclick="simulateRandomVotes()" class="btn-primary">
+                        Simulasi Vote Acak
+                    </button>
+                </div>
+
+                <div class="demo-card">
+                    <h4>Simulasi Vote Spesifik</h4>
+                    <div id="candidate-vote-controls"></div>
+                </div>
+
+                <div class="demo-card">
+                    <h4>Simulasi Abstain</h4>
+                    <label>Jumlah Abstain:</label>
+                    <input type="number" id="simulate-abstain-count" value="3" min="1" max="20">
+                    <button onclick="simulateAbstain()" class="btn-primary">
+                        Simulasi Abstain
+                    </button>
+                </div>
+
+                <div id="simulate-message" class="message"></div>
+            </div>
+
+            <!-- Tab: Kontrol -->
+            <div id="demo-tab-control" class="tab-content">
+                <h3>⚙️ Kontrol Demo</h3>
+
+                <div class="demo-card">
+                    <h4>🎯 Quick Actions</h4>
+                    <button onclick="openVotePage()" class="btn-action">
+                        🗳️ Buka Halaman Vote
+                    </button>
+                    <button onclick="openResultPage()" class="btn-action">
+                        📊 Buka Halaman Hasil
+                    </button>
+                    <button onclick="openAdminPage()" class="btn-action">
+                        ⚙️ Buka Admin Panel
+                    </button>
+                </div>
+
+                <div class="demo-card">
+                    <h4>📋 Generate Token Demo</h4>
+                    <button onclick="generateDemoToken()" class="btn-primary">
+                        Generate Token untuk Demo Vote
+                    </button>
+                    <div id="demo-token-display"></div>
+                </div>
+
+                <div class="demo-card">
+                    <h4>📊 Statistik Real-time</h4>
+                    <div id="demo-stats"></div>
+                    <button onclick="refreshDemoStats()" class="btn-primary">
+                        🔄 Refresh Stats
+                    </button>
+                </div>
+
+                <div id="control-message" class="message"></div>
+            </div>
+
+            <!-- Tab: Presentasi -->
+            <div id="demo-tab-presentation" class="tab-content">
+                <h3>📽️ Mode Presentasi</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">
+                    Skenario presentasi untuk rapat warga
+                </p>
+
+                <div class="demo-card">
+                    <h4>🎬 Skenario 1: Full Demo</h4>
+                    <p>Setup lengkap + simulasi voting + tampilkan hasil</p>
+                    <ol class="scenario-steps">
+                        <li>Setup 3 kandidat dan 20 pemilih</li>
+                        <li>Simulasi 15 vote acak</li>
+                        <li>Simulasi 2 abstain</li>
+                        <li>Tampilkan hasil real-time</li>
+                    </ol>
+                    <button onclick="runScenario1()" class="btn-primary">
+                        ▶️ Jalankan Skenario 1
+                    </button>
+                </div>
+
+                <div class="demo-card">
+                    <h4>🎬 Skenario 2: Live Voting Demo</h4>
+                    <p>Demo proses voting dengan timer</p>
+                    <ol class="scenario-steps">
+                        <li>Generate 1 token demo</li>
+                        <li>Buka halaman vote</li>
+                        <li>Tunjukkan countdown timer</li>
+                        <li>Pilih kandidat dan submit</li>
+                    </ol>
+                    <button onclick="runScenario2()" class="btn-primary">
+                        ▶️ Jalankan Skenario 2
+                    </button>
+                </div>
+
+                <div class="demo-card">
+                    <h4>🎬 Skenario 3: Timeout Demo</h4>
+                    <p>Demo abstain otomatis saat timeout</p>
+                    <ol class="scenario-steps">
+                        <li>Generate 1 token demo</li>
+                        <li>Buka halaman vote</li>
+                        <li>Biarkan timer habis (akan dipercepat)</li>
+                        <li>Tunjukkan abstain otomatis</li>
+                    </ol>
+                    <button onclick="runScenario3()" class="btn-primary">
+                        ▶️ Jalankan Skenario 3
+                    </button>
+                </div>
+
+                <div class="demo-card">
+                    <h4>📊 Presentation Display</h4>
+                    <button onclick="openPresentationView()" class="btn-primary btn-large">
+                        🖥️ Buka Tampilan Presentasi
+                    </button>
+                </div>
+
+                <div id="presentation-message" class="message"></div>
+            </div>
+
+            <div class="demo-footer">
+                <button onclick="logoutDemo()" class="btn-secondary">Keluar Demo Mode</button>
+                <a href="index.html" class="btn-action">← Kembali ke Beranda</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/demo.js"></script>
+</body>
+</html>
