@@ -1,31 +1,51 @@
-// Supabase Configuration yg lama
-//const SUPABASE_URL = 'https://recyuuurbxzczrmnwkzp.supabase.co'; // ← PASTE URL Anda
-//const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw'; // ← PASTE KEY Anda
-
-// Initialize Supabase Client
-//const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // ============================================
-// SUPABASE CONFIGURATION
+// PEMILIHAN RT - CONFIGURATION
 // ============================================
 
-const CONFIG = {
-    supabaseUrl: 'https://recyuuurbxzczrmnwkzp.supabase.co',
-    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw',
-    adminPassword: 'admin123', // GANTI INI!
-    demoPassword: 'demo2024',  // GANTI INI!
-    storageBucket: 'candidate-photos'
+// Supabase Configuration Object
+const AppConfig = {
+    supabase: {
+        url: 'https://recyuuurbxzczrmnwkzp.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY3l1dXVyYnh6Y3pybW53a3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNDczNDEsImV4cCI6MjA4MTYyMzM0MX0.S96kYD64TgolKffPdvLOmKL1Ls5lFgkgk7A_B1g-Asw'
+    },
+    passwords: {
+        admin: 'admin123',  // GANTI INI!
+        demo: 'demo2024'    // GANTI INI!
+    },
+    storage: {
+        bucket: 'candidate-photos'
+    }
 };
 
 // Initialize Supabase Client
-const supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+let supabaseClient;
 
-// Backward compatibility - untuk code yang masih pakai variable lama
-const SUPABASE_URL = CONFIG.supabaseUrl;
-const SUPABASE_ANON_KEY = CONFIG.supabaseKey;
-const ADMIN_PASSWORD = CONFIG.adminPassword;
-const DEMO_PASSWORD = CONFIG.demoPassword;
-const STORAGE_BUCKET = CONFIG.storageBucket;
+function initializeSupabase() {
+    if (typeof window.supabase === 'undefined') {
+        console.error('❌ Supabase library not loaded');
+        return null;
+    }
+    
+    if (!supabaseClient) {
+        supabaseClient = window.supabase.createClient(
+            AppConfig.supabase.url, 
+            AppConfig.supabase.key
+        );
+        console.log('✅ Supabase initialized');
+    }
+    
+    return supabaseClient;
+}
+
+// Auto-initialize
+const supabase = initializeSupabase();
+
+// Backward compatibility
+const SUPABASE_URL = AppConfig.supabase.url;
+const SUPABASE_ANON_KEY = AppConfig.supabase.key;
+const ADMIN_PASSWORD = AppConfig.passwords.admin;
+const DEMO_PASSWORD = AppConfig.passwords.demo;
+const STORAGE_BUCKET = AppConfig.storage.bucket;
 
 // ============================================
 // HELPER FUNCTIONS
@@ -57,6 +77,10 @@ function setAdminAuth(value) {
 // ============================================
 
 async function uploadImage(file) {
+    if (!supabase) {
+        throw new Error('Supabase not initialized');
+    }
+
     try {
         if (!file) {
             throw new Error('Tidak ada file yang dipilih');
@@ -67,7 +91,7 @@ async function uploadImage(file) {
             throw new Error('Format file harus JPG, PNG, GIF, atau WebP');
         }
 
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 2 * 1024 * 1024;
         if (file.size > maxSize) {
             throw new Error('Ukuran file maksimal 2MB');
         }
@@ -77,7 +101,7 @@ async function uploadImage(file) {
         const filePath = `candidates/${fileName}`;
 
         const { data, error } = await supabase.storage
-            .from(CONFIG.storageBucket)
+            .from(AppConfig.storage.bucket)
             .upload(filePath, file, {
                 cacheControl: '3600',
                 upsert: false
@@ -86,7 +110,7 @@ async function uploadImage(file) {
         if (error) throw error;
 
         const { data: urlData } = supabase.storage
-            .from(CONFIG.storageBucket)
+            .from(AppConfig.storage.bucket)
             .getPublicUrl(filePath);
 
         return urlData.publicUrl;
@@ -98,18 +122,20 @@ async function uploadImage(file) {
 }
 
 async function deleteImage(imageUrl) {
+    if (!supabase) return;
+
     try {
-        if (!imageUrl || !imageUrl.includes(CONFIG.storageBucket)) {
+        if (!imageUrl || !imageUrl.includes(AppConfig.storage.bucket)) {
             return;
         }
 
-        const urlParts = imageUrl.split(`${CONFIG.storageBucket}/`);
+        const urlParts = imageUrl.split(`${AppConfig.storage.bucket}/`);
         if (urlParts.length < 2) return;
         
         const filePath = urlParts[1].split('?')[0];
 
         const { error } = await supabase.storage
-            .from(CONFIG.storageBucket)
+            .from(AppConfig.storage.bucket)
             .remove([filePath]);
 
         if (error) throw error;
@@ -171,20 +197,26 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
 }
 
 // ============================================
-// INITIALIZATION LOG
+// VERIFICATION
 // ============================================
 
-console.log('✅ Supabase Config Loaded');
-console.log('📡 Connected to:', CONFIG.supabaseUrl);
-console.log('🗄️ Storage Bucket:', CONFIG.storageBucket);
-
-// Test connection
-supabase.from('candidates').select('count', { count: 'exact', head: true })
-    .then(({ count, error }) => {
-        if (error) {
-            console.error('❌ Database connection failed:', error.message);
-        } else {
-            console.log('✅ Database connected successfully');
-            console.log('📊 Total candidates:', count || 0);
-        }
-    });
+// Verify Supabase connection
+if (supabase && supabase.from) {
+    console.log('✅ Config loaded successfully');
+    console.log('📡 Supabase URL:', AppConfig.supabase.url);
+    
+    // Test connection
+    supabase.from('candidates').select('count', { count: 'exact', head: true })
+        .then(({ error }) => {
+            if (error) {
+                console.warn('⚠️ Database connection issue:', error.message);
+            } else {
+                console.log('✅ Database connected');
+            }
+        })
+        .catch(err => {
+            console.warn('⚠️ Connection test failed:', err.message);
+        });
+} else {
+    console.error('❌ Supabase initialization failed');
+}
