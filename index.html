@@ -5,20 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pemilihan RT - Perumahan</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .scanner-section {
+            margin: 20px 0;
+        }
+        .scanner-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .btn-scanner {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--text-dark);
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-scanner:hover {
+            background: var(--primary-light);
+        }
+        .btn-scanner.active {
+            background: var(--primary-color);
+            color: var(--text-dark);
+        }
+        #qr-reader {
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            margin: 20px 0;
+        }
+        #qr-reader.active {
+            display: block;
+        }
+        .scanner-status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .scanner-status.scanning {
+            background: #d6eaf8;
+            color: var(--info-color);
+        }
+        .scanner-status.success {
+            background: #d5f4e6;
+            color: var(--success-color);
+        }
+    </style>
 </head>
 <body>
+    <!-- Watermark -->
+    <div class="watermark">
+        <img src="assets/logo.png" alt="Logo RT" onerror="this.style.display='none'">
+    </div>
+
     <div class="container">
-        <div class="header">
-            <h1>🏘️ PEMILIHAN RT</h1>
+        <div class="header header-with-logo">
+            <img src="assets/logo.png" alt="Logo RT" class="app-logo" onerror="this.style.display='none'">
+            <h1>🏘️ PEMILIHAN RT PERUM PIRES</h1>
             <p>Sistem Pemilihan Ketua RT Digital</p>
         </div>
 
         <div class="content-box">
             <h2>Selamat Datang</h2>
-            <p>Silakan scan QR Code Anda untuk melakukan pemungutan suara</p>
+            <p>Silakan pilih metode input token Anda:</p>
             
-            <div class="input-section">
-                <label for="token-input">Atau Masukkan Token Manual:</label>
+            <!-- Scanner Buttons -->
+            <div class="scanner-section">
+                <div class="scanner-buttons">
+                    <button onclick="showManualInput()" class="btn-scanner active" id="btn-manual">
+                        ⌨️ Input Manual
+                    </button>
+                    <button onclick="startScanner()" class="btn-scanner" id="btn-scan">
+                        📷 Scan QR Code
+                    </button>
+                </div>
+
+                <!-- QR Scanner -->
+                <div id="qr-reader"></div>
+                <div id="scanner-status" class="scanner-status" style="display: none;"></div>
+            </div>
+
+            <!-- Manual Input Section -->
+            <div class="input-section" id="manual-input-section">
+                <label for="token-input">Masukkan Token:</label>
                 <input type="text" id="token-input" placeholder="Masukkan token Anda">
                 <button onclick="verifyToken()" class="btn-primary">Verifikasi Token</button>
             </div>
@@ -32,12 +112,22 @@
             <a href="demo.html" class="link-demo">🎭 Demo Mode</a>
         </div>
     </div>
-      <!-- Supabase Library - HARUS PERTAMA -->
+
+    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Config - SETELAH Supabase -->
+    
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <!-- Config -->
     <script src="js/config.js"></script>
+    
+    <!-- Main Script -->
     <script>
-        // Cek jika ada token di URL (dari QR scan)
+        let html5QrCode = null;
+        let isScanning = false;
+
+        // Check if token in URL (from QR scan)
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
         
@@ -46,9 +136,115 @@
             verifyToken();
         }
 
+        function showManualInput() {
+            // Stop scanner if running
+            if (isScanning) {
+                stopScanner();
+            }
+
+            // Update UI
+            document.getElementById('btn-manual').classList.add('active');
+            document.getElementById('btn-scan').classList.remove('active');
+            document.getElementById('manual-input-section').style.display = 'block';
+            document.getElementById('qr-reader').classList.remove('active');
+            document.getElementById('scanner-status').style.display = 'none';
+        }
+
+        async function startScanner() {
+            // Update UI
+            document.getElementById('btn-scan').classList.add('active');
+            document.getElementById('btn-manual').classList.remove('active');
+            document.getElementById('manual-input-section').style.display = 'none';
+            document.getElementById('qr-reader').classList.add('active');
+            
+            const statusDiv = document.getElementById('scanner-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'scanner-status scanning';
+            statusDiv.textContent = '📷 Memulai kamera...';
+
+            try {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                }
+
+                // Get cameras
+                const devices = await Html5Qrcode.getCameras();
+                
+                if (devices && devices.length) {
+                    // Prefer back camera for tablets
+                    const backCamera = devices.find(device => 
+                        device.label.toLowerCase().includes('back') ||
+                        device.label.toLowerCase().includes('rear')
+                    ) || devices[0];
+
+                    statusDiv.textContent = '📷 Arahkan kamera ke QR Code...';
+
+                    await html5QrCode.start(
+                        backCamera.id,
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 }
+                        },
+                        (decodedText, decodedResult) => {
+                            // Success callback
+                            onScanSuccess(decodedText);
+                        },
+                        (errorMessage) => {
+                            // Error callback (can be ignored)
+                        }
+                    );
+
+                    isScanning = true;
+                } else {
+                    statusDiv.className = 'scanner-status';
+                    statusDiv.textContent = '❌ Tidak ada kamera ditemukan';
+                }
+            } catch (err) {
+                console.error('Scanner error:', err);
+                statusDiv.className = 'scanner-status';
+                statusDiv.textContent = '❌ Gagal membuka kamera: ' + err.message;
+            }
+        }
+
+        async function stopScanner() {
+            if (html5QrCode && isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    isScanning = false;
+                } catch (err) {
+                    console.error('Error stopping scanner:', err);
+                }
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            // Stop scanner
+            stopScanner();
+
+            const statusDiv = document.getElementById('scanner-status');
+            statusDiv.className = 'scanner-status success';
+            statusDiv.textContent = '✅ QR Code terdeteksi!';
+
+            // Extract token from URL or use directly
+            let token = decodedText;
+            
+            // If it's a URL, extract token parameter
+            if (decodedText.includes('token=')) {
+                const url = new URL(decodedText);
+                token = url.searchParams.get('token');
+            }
+
+            // Set token and verify
+            document.getElementById('token-input').value = token;
+            
+            // Auto verify after 1 second
+            setTimeout(() => {
+                verifyToken();
+            }, 1000);
+        }
+
         async function verifyToken() {
             const tokenInput = document.getElementById('token-input').value.trim();
-            const messageDiv = document.getElementById('message');
             
             if (!tokenInput) {
                 showMessage('Mohon masukkan token!', 'error');
@@ -58,7 +254,7 @@
             showMessage('Memverifikasi token...', 'info');
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await window.supabase
                     .from('voters')
                     .select('*')
                     .eq('token', tokenInput)
@@ -74,7 +270,6 @@
                     return;
                 }
 
-                // Token valid, redirect ke halaman vote
                 localStorage.setItem('voterToken', tokenInput);
                 window.location.href = 'vote.html';
 
@@ -95,8 +290,13 @@
                 verifyToken();
             }
         });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (isScanning) {
+                stopScanner();
+            }
+        });
     </script>
 </body>
-
 </html>
-
