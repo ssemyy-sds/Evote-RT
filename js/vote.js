@@ -165,8 +165,11 @@ async function submitVote() {
         
         localStorage.removeItem('voterToken');
         
+        localStorage.setItem('voterName', voterData.name);
+        localStorage.setItem('voterAddress', voterData.address);
+
         setTimeout(() => {
-            window.location.href = 'result.html';
+            window.location.href = 'thankyou.html';
         }, 2000);
 
     } catch (err) {
@@ -175,3 +178,4 @@ async function submitVote() {
     }
 
 }
+
