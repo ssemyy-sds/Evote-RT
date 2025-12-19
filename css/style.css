@@ -580,3 +580,52 @@ table tr:hover {
     }
 }
 
+/* ===== LOGO & WATERMARK V2 ===== */
+
+/* Logo di Header */
+.app-logo {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.header-with-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Watermark di Background */
+.watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.03;
+    z-index: 0;
+    pointer-events: none;
+    width: 60%;
+    max-width: 500px;
+}
+
+.watermark img {
+    width: 100%;
+    height: auto;
+}
+
+/* Pastikan content di atas watermark */
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive logo */
+@media (max-width: 768px) {
+    .app-logo {
+        max-width: 120px;
+    }
+    .watermark {
+        width: 80%;
+    }
+}
+
