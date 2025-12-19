@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terima Kasih - Pemilihan RT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .thankyou-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        .thankyou-box {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .thankyou-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .thankyou-title {
+            font-size: 2.5em;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+        .thankyou-message {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .countdown-text {
+            font-size: 1em;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .voter-info-box {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="thankyou-container">
+        <div class="thankyou-box">
+            <div class="thankyou-icon">✅</div>
+            <h1 class="thankyou-title">Terima Kasih!</h1>
+            
+            <div class="voter-info-box" id="voter-info">
+                <!-- Voter info akan dimuat di sini -->
+            </div>
+            
+            <p class="thankyou-message">
+                Suara Anda telah berhasil tercatat dalam sistem.<br>
+                Terima kasih atas partisipasi Anda dalam pemilihan Ketua RT.
+            </p>
+            
+            <div class="countdown-text">
+                Kembali ke beranda dalam <span id="countdown">5</span> detik...
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script>
+        // Get voter info from localStorage
+        const voterName = localStorage.getItem('voterName') || 'Pemilih';
+        const voterAddress = localStorage.getItem('voterAddress') || '';
+        
+        // Display voter info
+        document.getElementById('voter-info').innerHTML = `
+            <h3 style="margin: 0 0 10px 0; color: var(--text-dark);">${voterName}</h3>
+            ${voterAddress ? `<p style="margin: 0; color: var(--text-dark);">${voterAddress}</p>` : ''}
+        `;
+        
+        // Countdown and redirect
+        let seconds = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                // Clear localStorage
+                localStorage.removeItem('voterToken');
+                localStorage.removeItem('voterName');
+                localStorage.removeItem('voterAddress');
+                // Redirect to home
+                window.location.href = 'index.html';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
