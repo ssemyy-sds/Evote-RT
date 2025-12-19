@@ -27,6 +27,7 @@
                 <button class="tab-btn active" onclick="showTab('candidates')">Calon</button>
                 <button class="tab-btn" onclick="showTab('voters')">Pemilih</button>
                 <button class="tab-btn" onclick="showTab('tokens')">Generate Token</button>
+                <button class="tab-btn" onclick="showTab('upload-excel')">📊 Upload Excel</button>
                 <button class="tab-btn" onclick="showTab('results')">Hasil</button>
             </div>
 
@@ -64,6 +65,46 @@
                 <div id="token-result"></div>
             </div>
 
+
+            <!-- Tab: Upload Excel -->
+<div id="tab-upload-excel" class="tab-content">
+    <h2>📊 Upload Pemilih dari Excel</h2>
+    <p style="color: #7f8c8d; margin-bottom: 20px;">
+        Upload file Excel (.xlsx atau .xls) dengan format yang sudah ditentukan
+    </p>
+
+    <!-- Download Template -->
+    <div class="demo-card">
+        <h4>📥 Download Template Excel</h4>
+        <p>Download template Excel terlebih dahulu untuk memastikan format yang benar</p>
+        <button onclick="downloadExcelTemplate()" class="btn-primary">
+            ⬇️ Download Template
+        </button>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="demo-card">
+        <h4>📤 Upload File Excel</h4>
+        <p><strong>Format Excel:</strong></p>
+        <ul style="margin: 10px 0 20px 20px; line-height: 1.8;">
+            <li>Kolom A: <strong>Nama</strong> (wajib)</li>
+            <li>Kolom B: <strong>Alamat</strong> (wajib)</li>
+            <li>Mulai dari baris 2 (baris 1 untuk header)</li>
+            <li>Maksimal 500 baris</li>
+        </ul>
+        
+        <input type="file" id="excel-file" accept=".xlsx,.xls" style="display: none;" onchange="handleExcelUpload(event)">
+        <button onclick="document.getElementById('excel-file').click()" class="btn-primary">
+            📁 Pilih File Excel
+        </button>
+        
+        <div id="excel-preview" style="margin-top: 20px;"></div>
+        <div id="excel-upload-status" class="message" style="display: none;"></div>
+        </div>
+
+            <!-- Hasil Upload -->
+            <div id="excel-results" style="margin-top: 20px;"></div>
+            </div>
             <!-- Tab: Results -->
             <div id="tab-results" class="tab-content">
                 <h2>Hasil Pemungutan Suara</h2>
@@ -79,10 +120,13 @@
             <a href="index.html">← Kembali ke Beranda</a>
         </div>
     </div>
-     <!-- Supabase Library - HARUS PERTAMA -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/excel-handler.js"></script> <!-- TAMBAHKAN INI -->
+</body>
+</html>
 </body>
 
 </html>
+
